@@ -12,17 +12,9 @@ django-cors-headers==3.3.0
 django-debug-toolbar==2.2
 django-querycount==0.7.0
 django-rest-knox==4.1.0
-django-storages==1.9.1
 djangorestframework==3.11.0
 environs==8.0.0
 funcy==1.14
-google-api-core==1.22.1
-google-auth==1.20.1
-google-cloud-core==1.4.1
-google-cloud-storage==1.30.0
-google-crc32c==1.0.0
-google-resumable-media==1.0.0
-googleapis-common-protos==1.52.0
 idna==2.10
 marshmallow==3.6.1
 mypy==0.782
