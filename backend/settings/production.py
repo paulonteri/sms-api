@@ -1,5 +1,6 @@
-from google.oauth2 import service_account
 import sys
+from datetime import timedelta
+
 from backend.settings.base import *
 
 SECRET_KEY = env('SECRET_KEY')
@@ -7,7 +8,7 @@ DEBUG = env.bool('DEBUG', False)
 TESTING = env.bool('TESTING', False)
 DJANGO_TESTS = sys.argv[1:2] == ['test']
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', 'localhost')
-CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST', 'http://localhost:3000')
+CORS_ALLOW_ALL_ORIGINS = True
 
 # # # # # Database
 DATABASES = {
@@ -18,21 +19,10 @@ DATABASES = {
         'PASSWORD': env('DB_PASSWORD'),
         'HOST': env('DB_HOST'),
         'PORT': env.int('DB_PORT', 5432),
-        'CONN_MAX_AGE': env.int('DB_CONN_MAX_AGE', 2),
+        'CONN_MAX_AGE': env.int('DB_CONN_MAX_AGE', 5),
 
     }
 }
-
-# # # # # Google Cloud Storage
-# https://django-storages.readthedocs.io/en/latest/backends/gcloud.html
-if os.environ.get('GS_BUCKET_NAME'):
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    # STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    GS_DEFAULT_ACL = env('GS_DEFAULT_ACL', 'publicRead')
-    GS_FILE_OVERWRITE = False
-    GS_BUCKET_NAME = env('GS_BUCKET_NAME')
-    GS_LOCATION = env('GS_LOCATION')
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(info=env.json('GS_SERVICE_ACC'))
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
@@ -211,10 +201,16 @@ else:
 CACHE_MINUTES = int(os.environ.setdefault('CACHE_MINUTES', '10080'))
 CACHE_MINUTES_LONGER = int(os.environ.setdefault('CACHE_MINUTES_LONGER', '87600'))
 CACHEOPS = {
-    'accounts.*': {'ops': {'fetch', 'get'}, 'timeout': 60 * 60},
+    'accounts.*': {'ops': 'all', 'timeout': 60 * CACHE_MINUTES_LONGER},
     # django.contrib.auth models
-    'auth.*': {'ops': {'fetch', 'get'}, 'timeout': 60 * CACHE_MINUTES},
+    'auth.*': {'ops': 'all', 'timeout': 60 * CACHE_MINUTES_LONGER},
     # 'app_name.*': {'ops': 'all', 'timeout': 60 * CACHE_MINUTES},
     # 'products.*': {'ops': 'all', 'timeout': 60 * CACHE_MINUTES_LONGER},
     # 'name_app.*': None,
+}
+
+# # # # #  REST_KNOX
+REST_KNOX = {
+    'TOKEN_TTL': timedelta(weeks=25),
+    'TOKEN_LIMIT_PER_USER': 2,
 }
